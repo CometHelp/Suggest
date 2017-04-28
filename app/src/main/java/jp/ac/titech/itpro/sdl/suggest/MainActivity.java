@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText inputText;
     private ArrayAdapter<String> resultAdapter;
+    private final static String KEY_NAME = "MainActivity.query";
+    private String query = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         suggestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String queryText = inputText.getText().toString().trim();
-                new SuggestThread(queryText).start();
+                query = inputText.getText().toString().trim();
+                new SuggestThread(query).start();
             }
         });
 
@@ -55,6 +57,25 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        if (savedInstanceState != null) {
+            query = savedInstanceState.getString(KEY_NAME);
+        }
+    }
+
+    protected void onResume() {
+        super.onResume();
+        suggest();
+    }
+
+    private void suggest() {
+        if (query != null && query.length() > 0) {
+            new SuggestThread(query).start();
+        }
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_NAME, query);
     }
 
     private final static int MSG_RESULT = 1111;
